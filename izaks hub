@@ -1,0 +1,270 @@
+-- Load Infinite Yield silently
+task.spawn(function()
+    loadstring(game:HttpGet(('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'), true))()
+end)
+
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+
+-- Remove Rayfield branding
+Rayfield.Notification = function() end
+Rayfield.Loading = function() end
+
+-- Create Main Window
+local Window = Rayfield:CreateWindow({
+   Name = "Izaks Hub",
+   LoadingTitle = "Izaks Hub",
+   LoadingSubtitle = "Made by Izak",
+   Theme = "Default",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "MyScripts",
+      FileName = "IzaksHub"
+   },
+   KeySystem = false
+})
+
+-- 🌍 Teleport Tab
+local TeleportTab = Window:CreateTab("Teleport", "map-pin")
+TeleportTab:CreateSection("Teleport Controls")
+
+local UserInputService = game:GetService("UserInputService")
+local player = game.Players.LocalPlayer
+local rootPart = nil
+
+-- Function to get the HumanoidRootPart
+local function getRootPart()
+    local character = player.Character or player.CharacterAdded:Wait()
+    return character:WaitForChild("HumanoidRootPart")
+end
+
+rootPart = getRootPart()
+
+-- Detect character respawn and update rootPart
+player.CharacterAdded:Connect(function(character)
+    task.wait(1)
+    rootPart = character:WaitForChild("HumanoidRootPart")
+end)
+
+-- General Teleport Function
+local function teleportTo(position)
+    if not rootPart then
+        warn("Root part not found! Waiting for character...")
+        rootPart = getRootPart()
+    end
+    rootPart.CFrame = CFrame.new(position)
+end
+
+TeleportTab:CreateButton({
+   Name = "Teleport to Home",
+   Callback = function()
+      teleportTo(Vector3.new(202.7, 40.87, 62.43))
+   end
+})
+
+TeleportTab:CreateButton({
+   Name = "Teleport to Hot Tub",
+   Callback = function()
+      teleportTo(Vector3.new(9999.03, 10053.98, 10015.86))
+   end
+})
+
+TeleportTab:CreateButton({
+   Name = "Teleport to Neo's Diddy Party 😈🍆",
+   Callback = function()
+      teleportTo(Vector3.new(10012.2, 10036.4, 10001.4))
+   end
+})
+
+-- 🔥 Special Teleport Function (TP FF)
+local function teleport()
+    local originalPosition = rootPart.Position
+
+    local platform = Instance.new("Part")
+    platform.Size = Vector3.new(10, 1, 10)
+    platform.Position = Vector3.new(4230, -6.4, 60)
+    platform.Anchored = true
+    platform.Transparency = 1
+    platform.Parent = game.Workspace
+
+    task.wait(0.5)
+
+    rootPart.CFrame = CFrame.new(4230, -2.9, 60)
+
+    task.wait(5)
+
+    rootPart.CFrame = CFrame.new(originalPosition)
+
+    task.wait(1)
+    platform:Destroy()
+end
+
+TeleportTab:CreateKeybind({
+    Name = "kill ff",
+    CurrentKeybind = "Y",
+    HoldToInteract = false,
+    Flag = "TeleportKeybind",
+    Callback = function()
+        teleport()
+    end
+})
+
+-- ⚠️ Lag Server Tab
+local LagTab = Window:CreateTab("Lag Server", "alert-triangle")
+LagTab:CreateSection("Lag Controls")
+
+-- 🎛️ MISC Tab
+local MiscTab = Window:CreateTab("MISC", "settings")
+MiscTab:CreateSection("Miscellaneous Features")
+
+-- Huge Invisible Baseplate Toggle
+local baseplate = nil
+local function createBaseplate()
+    if baseplate then return end
+    baseplate = Instance.new("Part")
+    baseplate.Size = Vector3.new(5000, 1, 5000)
+    baseplate.Position = Vector3.new(0, -2, 0)
+    baseplate.Anchored = true
+    baseplate.Transparency = 1
+    baseplate.Parent = game.Workspace
+end
+
+local function removeBaseplate()
+    if baseplate then
+        baseplate:Destroy()
+        baseplate = nil
+    end
+end
+
+MiscTab:CreateToggle({
+    Name = "Enable Huge Baseplate",
+    CurrentValue = false,
+    Flag = "HugeBaseplateToggle",
+    Callback = function(value)
+        if value then
+            createBaseplate()
+        else
+            removeBaseplate()
+        end
+    end
+})
+
+-- 🧹 Gradient Donut Destroyer Toggle
+local donutDestroyerEnabled = false
+
+local function destroyGradientDonuts()
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("BasePart") and string.lower(obj.Name):find("gradientdonut") then
+            obj:Destroy()
+        end
+    end
+end
+
+MiscTab:CreateToggle({
+    Name = "Destroy Gradient Donuts",
+    CurrentValue = false,
+    Flag = "GradientDonutDestroyerToggle",
+    Callback = function(value)
+        donutDestroyerEnabled = value
+        
+        if donutDestroyerEnabled then
+            task.spawn(function()
+                while donutDestroyerEnabled do
+                    destroyGradientDonuts()
+                    task.wait(1)
+                end
+            end)
+        end
+    end
+})
+
+-- 🛑 Kill Script Remover Toggle
+local killScriptRemoverEnabled = false
+
+local function removeKillScripts()
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Part") and obj.Name == "Part" then
+            local killScript = obj:FindFirstChild("Kill")
+            
+            if killScript and killScript:IsA("Script") then
+                local position = obj.Position
+                local size = obj.Size
+
+                obj:Destroy()
+
+                local newPart = Instance.new("Part")
+                newPart.Name = "Part"
+                newPart.Size = size
+                newPart.Position = position
+                newPart.Anchored = true
+                newPart.Color = Color3.fromRGB(255, 0, 0)
+                newPart.Transparency = 1 
+                newPart.Parent = workspace
+            end
+        end
+    end
+end
+
+MiscTab:CreateToggle({
+    Name = "Remove Kill Scripts",
+    CurrentValue = false,
+    Flag = "KillScriptRemoverToggle",
+    Callback = function(value)
+        killScriptRemoverEnabled = value
+
+        if killScriptRemoverEnabled then
+            task.spawn(function()
+                while killScriptRemoverEnabled do
+                    removeKillScripts()
+                    task.wait(1)
+                end
+            end)
+        end
+    end
+})
+
+-- 🎭 Remove Targeted Accessories Toggle
+local removeAccessoriesEnabled = false
+local targetItemNames = {"aura", "Fluffy Satin Gloves Black"}
+
+local function hasItemInName(accessory)
+    for _, itemName in pairs(targetItemNames) do
+        if accessory.Name:lower():find(itemName:lower()) then
+            return true
+        end
+    end
+    return false
+end
+
+local function removeTargetedItems(character)
+    if not character then return end
+
+    for _, item in pairs(character:GetChildren()) do
+        if item:IsA("Accessory") and hasItemInName(item) then
+            item:Destroy()
+        end
+    end
+end
+
+MiscTab:CreateToggle({
+    Name = "Remove Targeted Accessories",
+    CurrentValue = false,
+    Flag = "RemoveAccessoriesToggle",
+    Callback = function(value)
+        removeAccessoriesEnabled = value
+
+        if removeAccessoriesEnabled then
+            task.spawn(function()
+                while removeAccessoriesEnabled do
+                    for _, player in pairs(game:GetService("Players"):GetPlayers()) do
+                        if player.Character then
+                            removeTargetedItems(player.Character)
+                        end
+                    end
+                    task.wait(1)
+                end
+            end)
+        end
+    end
+})
+
+print("✅ Izaks Hub Loaded! Toggle features in MISC tab.")
